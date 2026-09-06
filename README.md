@@ -3,6 +3,8 @@
 [![Windows build](https://github.com/gusdeyw/speedlimitfree/actions/workflows/release.yml/badge.svg)](https://github.com/gusdeyw/speedlimitfree/actions/workflows/release.yml)
 [![Tests](https://github.com/gusdeyw/speedlimitfree/actions/workflows/tests.yml/badge.svg)](https://github.com/gusdeyw/speedlimitfree/actions/workflows/tests.yml)
 [![Latest release](https://img.shields.io/github/v/release/gusdeyw/speedlimitfree)](https://github.com/gusdeyw/speedlimitfree/releases/latest)
+[![Windows 11 x64](https://img.shields.io/badge/platform-Windows%2011%20x64-0078D4)](#architecture)
+[![Built with AI assistance](https://img.shields.io/badge/development-AI%20assisted-64748B)](#built-with-ai-assistance)
 
 **[Download Windows installer (.exe)](https://github.com/gusdeyw/speedlimitfree/releases/latest/download/SpeedLimitFree-Setup.exe)** · [Download ZIP](https://github.com/gusdeyw/speedlimitfree/releases/latest/download/SpeedLimitFree-windows-x64.zip) · [Release notes](https://github.com/gusdeyw/speedlimitfree/releases/latest)
 
@@ -10,9 +12,7 @@ Windows 11 x64. Choose the installer for normal use. The ZIP includes the same a
 
 A Windows bandwidth-control utility built with **Go, Wails, Svelte, TypeScript, and plain CSS**.
 
-Created by [gusdeyw](https://github.com/gusdeyw). The green speedometer identifies the desktop, tray, and installer.
-
-The shared logo is `build/appicon.png` (vector source: `build/appicon.svg`). `scripts/build.ps1` regenerates the Windows icon from it before packaging. Settings links to the creator's GitHub profile; Windows file details and Installed Apps identify `gusdeyw` as the creator/publisher.
+Created by [gusdeyw](https://github.com/gusdeyw), with AI assistance during development.
 
 The desktop lists real processes, displays attributed traffic rates, and manages independent download/upload rules. A separate Go service owns traffic interception and keeps rules active after the UI exits.
 
@@ -20,11 +20,65 @@ The desktop uses a compact application table with inline download/upload editing
 
 **Current status:** desktop, tray, service controls, and local repair/startup are implemented and tested. The installed traffic engine starts successfully. Throughput accuracy, VPN behavior, and clean-machine installation still require validation. Do not treat this build as a qualified production network driver application.
 
+## Built with AI assistance
+
+SpeedLimitFree was built with the help of AI to reduce development time and keep the focus on the core problem: controlling how much bandwidth individual applications can use. AI assisted with planning, implementation, testing, and documentation, while [gusdeyw](https://github.com/gusdeyw) directed the product requirements and design decisions.
+
+AI is part of the development process. The app's bandwidth control runs locally through Go and Windows APIs and does not require an AI model or an AI service at runtime.
+
+## Architecture
+
+The desktop handles interaction, while a separate Windows service owns the rules and traffic engine. This separation lets limits remain active after you quit the desktop and keeps packet processing out of the frontend.
+
+```mermaid
+flowchart TD
+    subgraph Desktop["Desktop application - normal user"]
+        UI["Svelte + TypeScript UI in WebView2"]
+        Bridge["Wails Go backend"]
+        Tray["Native Windows tray"]
+        UI <-->|"Wails bindings and snapshot events"| Bridge
+        Tray <--> Bridge
+    end
+
+    Pipe["Restricted local named pipe - JSON commands and snapshots"]
+    Bridge <--> Pipe
+
+    subgraph Background["Windows background service"]
+        Engine["Go service and traffic engine"]
+        Ownership["Process discovery and connection ownership"]
+        Scheduler["Rule matching and bandwidth scheduler"]
+        Store["Local rules.json - atomic persistence"]
+        Ownership --> Engine
+        Engine <--> Scheduler
+        Engine <--> Store
+    end
+
+    Pipe <--> Engine
+    Driver["WinDivert DLL and Windows driver"]
+    Network["Windows network stack"]
+    Engine <-->|"Capture and reinject packets"| Driver
+    Driver <--> Network
+```
+
+| Component | Responsibility | Source |
+| --- | --- | --- |
+| Svelte frontend | Search processes, edit upload/download limits, and display service snapshots using the system theme. | [`frontend/src`](frontend/src) |
+| Wails desktop backend | Bridge UI commands to the service, manage the tray, and extract executable icons into a bounded memory cache. | [`internal/desktop`](internal/desktop), [`internal/tray`](internal/tray), [`internal/appicons`](internal/appicons) |
+| Windows service and IPC | Run independently of the desktop and handle requests over a named pipe restricted to the configured owner, administrators, and SYSTEM. | [`cmd/service`](cmd/service), [`internal/ipc`](internal/ipc) |
+| Traffic engine | Attribute packets to processes, match application or process rules, schedule traffic with separate directional budgets, and reinject packets through WinDivert. | [`internal/engine`](internal/engine), [`internal/attribution`](internal/attribution), [`internal/rules`](internal/rules), [`internal/shaping`](internal/shaping), [`internal/traffic`](internal/traffic) |
+| Persistence and installation | Save application rules atomically; install, repair, and remove the app and service through NSIS and PowerShell helpers. | [`internal/storage`](internal/storage), [`build/windows/installer`](build/windows/installer), [`scripts`](scripts) |
+
+When you change a limit, the UI calls the Go backend through Wails. The backend sends a command to the service, which validates the rule, saves persistent application rules, and updates the scheduler. Captured packets are matched to their owning process and rule; limited traffic waits for its directional budget before being reinjected. Traffic with uncertain ownership passes through.
+
+An application rule shares one bandwidth budget across its matching processes and connections. Process overrides are temporary and are not restored from disk. Snapshots return to the visible desktop for display; hiding to the tray suspends periodic UI updates while the service continues working.
+
+Installed application rules and service logs live in `%PROGRAMDATA%\SpeedLimitFree`; the desktop's WebView2 data lives in `%LOCALAPPDATA%\SpeedLimitFree\WebView2`. Service installation and Start/Stop/Restart actions use an elevated helper after the Windows administrator prompt. Normal UI use does not require elevation.
+
 ## Open the built application
 
 For downloads, use the **Windows installer** link above. Successful builds on `main` publish updated EXE and ZIP assets automatically; see [release workflow details](docs/RELEASING.md).
 
-Run **`build/bin/SpeedLimitFree-0.3.0-Setup.exe`** for the normal Windows installation. Setup requests administrator access once, installs the app and automatic background service, adds a Start menu shortcut and a Windows Installed Apps entry, and offers optional startup in the tray. The desktop launches through Explorer with normal user privileges. The Microsoft WebView2 bootstrapper runs only if the runtime is missing; that step requires internet access.
+Run **`SpeedLimitFree-Setup.exe`** from the latest release for the normal Windows installation. Local builds produce `build/bin/SpeedLimitFree-<version>-Setup.exe`. Setup requests administrator access once, installs the app and automatic background service, adds a Start menu shortcut and a Windows Installed Apps entry, and offers optional startup in the tray. The desktop launches through Explorer with normal user privileges. The Microsoft WebView2 bootstrapper runs only if the runtime is missing; that step requires internet access.
 
 Run the same or a newer installer to update or repair. Setup closes existing SpeedLimitFree tray windows, stages the full payload, preserves rules, and rolls files/service configuration back if the update fails. Older installers are rejected. Silent setup supports `/S` and optional `/TRAY=0` or `/TRAY=1`; without an override, upgrades retain the previous tray-startup choice.
 
@@ -114,6 +168,8 @@ Query a running service:
 ```
 
 ## Verification
+
+Run the hosted suite from **[Actions → Tests → Run workflow](https://github.com/gusdeyw/speedlimitfree/actions/workflows/tests.yml)**. It checks the frontend, Go code, browser behavior, service setup, and compiled installer fixtures without publishing a release. Browser reports are downloadable from the run's artifacts. Development branch pushes and pull requests run Tests automatically; `main` runs the checks through the release workflow.
 
 ```powershell
 # Build the embedded frontend before testing the root Go package.
