@@ -1,5 +1,12 @@
 # SpeedLimitFree
 
+[![Windows build](https://github.com/gusdeyw/speedlimitfree/actions/workflows/release.yml/badge.svg)](https://github.com/gusdeyw/speedlimitfree/actions/workflows/release.yml)
+[![Latest release](https://img.shields.io/github/v/release/gusdeyw/speedlimitfree)](https://github.com/gusdeyw/speedlimitfree/releases/latest)
+
+**[Download Windows installer (.exe)](https://github.com/gusdeyw/speedlimitfree/releases/latest/download/SpeedLimitFree-Setup.exe)** · [Download ZIP](https://github.com/gusdeyw/speedlimitfree/releases/latest/download/SpeedLimitFree-windows-x64.zip) · [Release notes](https://github.com/gusdeyw/speedlimitfree/releases/latest)
+
+Windows 11 x64. Choose the installer for normal use. The ZIP includes the same app and requires service setup. [Checksums](https://github.com/gusdeyw/speedlimitfree/releases/latest/download/SHA256SUMS.txt) are included with each release.
+
 A Windows bandwidth-control utility built with **Go, Wails, Svelte, TypeScript, and plain CSS**.
 
 Created by [gusdeyw](https://github.com/gusdeyw). The green speedometer identifies the desktop, tray, and installer.
@@ -13,6 +20,8 @@ The desktop uses a compact application table with inline download/upload editing
 **Current status:** desktop, tray, service controls, and local repair/startup are implemented and tested. The installed traffic engine starts successfully. Throughput accuracy, VPN behavior, and clean-machine installation still require validation. Do not treat this build as a qualified production network driver application.
 
 ## Open the built application
+
+For downloads, use the **Windows installer** link above. Successful builds on `main` publish updated EXE and ZIP assets automatically; see [release workflow details](docs/RELEASING.md).
 
 Run **`build/bin/SpeedLimitFree-0.3.0-Setup.exe`** for the normal Windows installation. Setup requests administrator access once, installs the app and automatic background service, adds a Start menu shortcut and a Windows Installed Apps entry, and offers optional startup in the tray. The desktop launches through Explorer with normal user privileges. The Microsoft WebView2 bootstrapper runs only if the runtime is missing; that step requires internet access.
 

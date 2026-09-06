@@ -1,6 +1,7 @@
 /.tools/
 /build/bin/
 /build/package/
+/build/release/
 /frontend/node_modules/
 /frontend/dist/
 /frontend/wailsjs/
