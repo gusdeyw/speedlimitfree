@@ -1,0 +1,21 @@
+{
+  "checks": "passed",
+  "viewport": "1280 × 820",
+  "fullRowsVisible": 20,
+  "tableHeight": 698,
+  "tableTop": 94,
+  "rowHeight": 32,
+  "tableAreaPercent": 85,
+  "verified": [
+    "search",
+    "application expansion",
+    "inline directional limit",
+    "process override",
+    "saved process rules",
+    "pause state",
+    "theme switch",
+    "service simulation",
+    "920 × 640 layout"
+  ],
+  "runtimeErrors": []
+}

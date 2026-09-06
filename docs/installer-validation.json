@@ -1,0 +1,26 @@
+{
+    "version":  "0.3.0",
+    "nsis":  "3.12",
+    "installerAssertions":  40,
+    "installerFixtures":  7,
+    "nativeInstallerAssertions":  18,
+    "serviceSetupAssertions":  16,
+    "goTests":  25,
+    "nativeTrayStartup":  "passed",
+    "installerTestsIsolation":  "Real NSIS/filesystem/shortcuts/HKCU; simulated SCM and driver operations",
+    "signature":  "Unsigned development installer; bundled Microsoft bootstrapper signature valid",
+    "remaining":  "Clean-machine elevated setup/removal, different-account UAC, live driver unload, reboot qualification, release signing",
+    "artifacts":  [
+                      {
+                          "file":  "SpeedLimitFree-0.3.0-Setup.exe",
+                          "bytes":  8774926,
+                          "sha256":  "7DEEF637D13910050E334FB58633992F50674076A76D6348B6A16EB846D0D5A1"
+                      },
+                      {
+                          "file":  "SpeedLimitFree-0.3.0-windows-x64.zip",
+                          "bytes":  9643641,
+                          "sha256":  "45FCC6FD722F4D98418DB2E8A4CEB944C9CB189D1D71CC83BDBE64FFAAD9D6B0"
+                      }
+                  ],
+    "branding":  "Shared speedometer verified in desktop/installer executable icons; Windows file details identify gusdeyw; 16 browser checks, Go tests/vet, 16 service setup assertions and 40 installer assertions pass after branding update."
+}

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SpeedLimitFree — compact desktop concept</title>
+  <style>
+    :root { color-scheme: light; --bg:#fff; --chrome:#f5f6f8; --toolbar:#fafbfc; --text:#262b33; --secondary:#626b78; --muted:#626c7a; --line:#e2e5e9; --soft-line:#edf0f3; --accent:#2367b3; --tint:#edf5ff; --selected:#e5f0ff; --hover:#f4f7fa; --green:#287c54; --orange:#9a641a; --shadow:0 8px 28px #172c4424; --down:#246cad; --up:#52795e; --bar:#d7e8fb; --row:32px; }
+    [data-theme=dark] { color-scheme:dark; --bg:#202327; --chrome:#282c31; --toolbar:#24282d; --text:#e0e4ea; --secondary:#adb5c0; --muted:#98a2b0; --line:#393f47; --soft-line:#2b3138; --accent:#7ab8fb; --tint:#26384c; --selected:#2a4563; --hover:#2a3037; --green:#87bfa1; --orange:#d8ad6b; --shadow:0 8px 28px #0006; --down:#8dbfeb; --up:#a2c8ae; --bar:#304963; }
+    * { box-sizing:border-box; }
+    body { margin:0; font:13px/1.4 "Segoe UI Variable", "Segoe UI", sans-serif; color:var(--text); background:var(--bg); height:100dvh; overflow:hidden; }
+    button,input,select { font:inherit; color:inherit; }
+    button { cursor:pointer; }
+    button:disabled { cursor:default; opacity:.45; }
+    button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+    button { border:1px solid transparent; background:transparent; border-radius:4px; }
+    button:hover:not(:disabled) { background:var(--hover); }
+    svg { width:16px; height:16px; vertical-align:middle; flex:none; stroke:currentColor; fill:none; stroke-width:1.65; stroke-linecap:round; stroke-linejoin:round; }
+    .app { height:100%; display:grid; grid-template-rows:44px 50px minmax(0,1fr) auto 28px; }
+    .appbar { display:flex; align-items:center; gap:24px; padding:0 15px; background:var(--chrome); border-bottom:1px solid var(--line); }
+    .brand { font-weight:600; display:flex; align-items:center; gap:9px; letter-spacing:-.3px; white-space:nowrap; }
+    .brand svg { color:var(--accent); width:21px; height:21px; }
+    .brand span { font-weight:400; color:var(--secondary); }
+    .nav { display:flex; align-self:stretch; gap:3px; }
+    .nav button { border-radius:0; padding:0 13px; color:var(--secondary); border-bottom:2px solid transparent; }
+    .nav button[aria-selected=true] { color:var(--text); border-bottom-color:var(--accent); font-weight:600; }
+    .spacer { flex:1; }
+    .iconbutton { width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; }
+    .quiet { color:var(--secondary); font-size:12px; }
+    .top-actions { display:flex; align-items:center; gap:7px; }
+    .service-button { display:flex; gap:7px; align-items:center; padding:5px 7px; font-size:12px; }
+    .dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); flex:none; }
+    .dot.off { background:var(--muted); }
+    .separator { width:1px; height:18px; margin:0 4px; background:var(--line); }
+    .toolbar { padding:8px 13px; display:flex; align-items:center; gap:13px; border-bottom:1px solid var(--line); background:var(--toolbar); }
+    .search { display:flex; gap:8px; align-items:center; padding:0 9px; width:320px; max-width:34vw; height:32px; border:1px solid var(--line); border-radius:4px; background:var(--bg); color:var(--secondary); }
+    .search:focus-within { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+    .search input { min-width:0; width:100%; border:0; padding:0; outline:none; background:transparent; font-size:12px; }
+    .search input:focus-visible { outline:0; }
+    kbd { border:1px solid var(--line); color:var(--muted); border-radius:3px; padding:1px 4px; font:10px "Segoe UI",sans-serif; white-space:nowrap; }
+    .filters { display:flex; gap:2px; }
+    .filters button { padding:5px 9px; font-size:12px; white-space:nowrap; color:var(--secondary); }
+    .filters button[aria-pressed=true] { color:var(--accent); background:var(--tint); border-color:var(--line); }
+    .count { color:var(--muted); font-size:11px; margin-left:4px; font-variant-numeric:tabular-nums; }
+    .text-button { font-size:12px; padding:5px 8px; white-space:nowrap; display:inline-flex; align-items:center; gap:7px; }
+    .text-button.active { background:var(--tint); color:var(--accent); }
+    .table-scroller { overflow:auto; background:var(--bg); }
+    table { width:100%; table-layout:fixed; border-collapse:separate; border-spacing:0; font-size:12px; }
+    col.appname { width:31%; } col.processes { width:9%; } col.rate { width:13%; } col.limit { width:13%; } col.status { width:8%; }
+    th { position:sticky; top:0; background:var(--chrome); z-index:1; text-align:right; height:32px; padding:0 13px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); font-weight:400; color:var(--secondary); font-size:11px; white-space:nowrap; }
+    th:first-child,th:last-child { text-align:left; }
+    th:last-child { border-right:0; }
+    th button { padding:0; border-radius:0; width:100%; text-align:inherit; height:30px; color:inherit; }
+    th .sort-indicator { display:inline-block; min-width:11px; margin-left:4px; color:var(--accent); }
+    td { height:var(--row); border-bottom:1px solid var(--soft-line); padding:0 13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    td+td { border-left:1px solid color-mix(in srgb,var(--line) 35%,transparent); }
+    tbody tr:hover { background:var(--hover); }
+    tbody tr.selected { background:var(--selected); }
+    tbody tr.child { background:var(--toolbar); color:var(--secondary); }
+    tbody tr.child.selected { background:var(--selected); }
+    .name-cell { display:flex; align-items:center; gap:8px; min-width:0; }
+    .name-cell .label { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+    .name-cell img { width:18px; height:18px; object-fit:contain; }
+    .name-cell .generic { width:18px; height:18px; display:flex; align-items:center; justify-content:center; color:var(--secondary); }
+    .name-cell .generic svg { width:16px; height:16px; }
+    .tree { width:15px; height:24px; padding:0; border-radius:2px; color:var(--secondary); font-size:16px; flex:none; }
+    .tree.blank { visibility:hidden; }
+    .child .name-cell { padding-left:22px; }
+    .process-id { color:var(--muted); }
+    .number { text-align:right; font-variant-numeric:tabular-nums; }
+    .speed { display:flex; align-items:center; justify-content:flex-end; gap:7px; position:relative; }
+    .speed .value { position:relative; z-index:0; }
+    .speed.down { color:var(--down); }
+    .speed.up { color:var(--up); }
+    .zero { color:var(--muted); }
+    .meter { position:absolute; right:0; height:19px; max-width:100%; background:var(--bar); opacity:.65; border-radius:2px; }
+    .limit-button { color:var(--secondary); width:100%; padding:3px 6px; border:1px solid transparent; display:flex; align-items:center; justify-content:flex-end; gap:8px; font-variant-numeric:tabular-nums; height:25px; border-radius:3px; }
+    .limit-button:hover { border-color:var(--accent); color:var(--accent); background:var(--bg)!important; }
+    .limit-button.set { color:var(--accent); font-weight:500; }
+    .limit-button.set:before { content:""; width:4px; height:4px; background:var(--accent); border-radius:50%; }
+    .limit-button.inactive { color:var(--muted); text-decoration:line-through; }
+    .state { font-size:11px; color:var(--muted); }
+    .state.limited { color:var(--accent); }
+    .state.paused { color:var(--orange); }
+    .state.override { color:var(--orange); }
+    .empty { text-align:center; color:var(--secondary); height:160px; }
+    .detail { grid-row:4; border-top:1px solid var(--line); background:var(--toolbar); padding:11px 16px; display:none; align-items:center; gap:20px; font-size:12px; min-height:66px; }
+    .detail.open { display:flex; }
+    .detail-name { width:220px; flex-shrink:0; display:flex; flex-direction:column; gap:3px; }
+    .detail-name strong { font-size:12px; font-weight:600; }
+    .path { min-width:0; flex:1; color:var(--secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
+    .detail-actions { display:flex; align-items:center; gap:5px; }
+    .statusbar { grid-row:5; border-top:1px solid var(--line); background:var(--chrome); display:flex; align-items:center; gap:17px; padding:0 15px; color:var(--secondary); font-size:11px; white-space:nowrap; }
+    .totals { display:flex; align-items:center; gap:15px; font-variant-numeric:tabular-nums; }
+    .totals strong { font-weight:500; color:var(--text); margin-left:4px; }
+    .preview-label { color:var(--muted); margin-left:auto; }
+    .popover { margin:0; position:fixed; inset:auto; width:278px; padding:0; border:1px solid var(--line); border-radius:6px; box-shadow:var(--shadow); background:var(--bg); color:var(--text); overflow:visible; z-index:10; }
+    .popover::backdrop { background:transparent; }
+    .pop-head { display:flex; align-items:center; gap:10px; padding:11px 13px; border-bottom:1px solid var(--line); font-weight:600; }
+    .pop-head .iconbutton { width:23px; height:23px; margin-left:auto; }
+    .pop-body { padding:13px; }
+    .pop-app { margin:0 0 11px; font-size:12px; color:var(--secondary); }
+    .value-field { display:flex; gap:6px; }
+    .value-field input { min-width:0; width:100%; border:1px solid var(--line); border-radius:3px; height:32px; padding:0 8px; background:var(--bg); font-variant-numeric:tabular-nums; }
+    .value-field select { border:1px solid var(--line); background:var(--chrome); border-radius:3px; width:90px; padding:0 5px; }
+    .presets { display:flex; gap:5px; margin:9px 0 13px; }
+    .presets button { font-size:11px; border-color:var(--line); padding:3px 6px; background:var(--toolbar); flex:1; }
+    .scope-note { font-size:11px; color:var(--secondary); line-height:1.55; margin:0; }
+    .pop-foot { display:flex; align-items:center; justify-content:space-between; padding:10px 13px; border-top:1px solid var(--line); background:var(--toolbar); border-radius:0 0 6px 6px; }
+    .primary { background:var(--accent); color:var(--bg); padding:5px 14px; border:1px solid var(--accent); font-weight:500; }
+    .primary:hover { background:var(--accent)!important; filter:brightness(.94); }
+    .error { color:#b34c43; font-size:11px; margin:8px 0 0; }
+    .service-panel { width:335px; }
+    .service-state-row { display:flex; justify-content:space-between; padding:7px 0; font-size:12px; }
+    .service-state-row span { color:var(--secondary); }
+    .service-panel .buttonrow { display:flex; gap:7px; margin:12px 0; }
+    .service-panel .buttonrow button { border-color:var(--line); background:var(--toolbar); padding:5px 9px; }
+    .service-panel details { font-size:11px; color:var(--secondary); margin-top:13px; }
+    .service-panel details p { margin-bottom:0; }
+    .toast { position:fixed; bottom:42px; left:50%; transform:translateX(-50%); padding:8px 14px; background:var(--text); color:var(--bg); border-radius:5px; box-shadow:var(--shadow); font-size:12px; z-index:20; }
+    [hidden] { display:none!important; }
+    @media(max-width:1030px) { .appbar { gap:13px; } .toolbar { gap:8px; } .search { width:250px; } .filters button { padding:5px 6px; } .toolbar .button-label { display:none; } td,th { padding-left:9px; padding-right:9px; } .detail-name { width:180px; } .state { font-size:10px; } .preview-label { font-size:10px; } }
+    @media(max-width:760px) { .appbar { gap:7px; } .brand { font-size:12px; } .nav button { padding:0 8px; font-size:12px; } .service-button .service-label { display:none; } .search { width:230px; max-width:46vw; } .filters button { font-size:11px; } .count { display:none; } .toolbar .add { display:none; } table { min-width:740px; } .detail.open { flex-wrap:wrap; gap:7px; } .detail .path { flex-basis:60%; } .detail-actions { margin-left:auto; } .statusbar { gap:10px; } .statusbar .hint,.preview-label { display:none; } }
+  </style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true"><defs>
+  <symbol id="gauge" viewBox="0 0 24 24"><path d="M3 18a10 10 0 1 1 18 0H3Z"/><path d="m12 14 5-6M7 10l-1-1M12 7V5M6 15H4M18 15h2"/><circle cx="12" cy="14" r="1"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></symbol>
+  <symbol id="settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><rect x="8" y="4" width="4" height="6" rx="1" fill="var(--chrome)"/><rect x="14" y="14" width="4" height="6" rx="1" fill="var(--chrome)"/></symbol>
+  <symbol id="moon" viewBox="0 0 24 24"><path d="M20 14a8.5 8.5 0 0 1-10-10A8.5 8.5 0 1 0 20 14Z"/></symbol>
+  <symbol id="pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 14h18"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  <symbol id="app" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8h18M6 6h1"/></symbol>
+  <symbol id="gear" viewBox="0 0 24 24"><path d="m9 3-1 3-3 1-2 3 2 2-1 4 3 2 3-1 3 3 3-1 1-4 3-2-1-4-3-1-1-3Z"/><circle cx="11" cy="11" r="3"/></symbol>
+</defs></svg>
+<div class="app">
+  <header class="appbar">
+    <div class="brand"><svg><use href="#gauge"/></svg>speedlimit<span>free</span></div>
+    <nav class="nav" aria-label="Views"><button id="applications-tab" aria-selected="true">Applications</button><button id="saved-tab" aria-selected="false">Saved limits <span class="count" id="saved-count"></span></button></nav>
+    <div class="spacer"></div>
+    <div class="top-actions">
+      <button class="service-button" id="service-button" aria-label="Manage service"><i class="dot" id="service-dot"></i><span class="service-label" id="service-label">Service running</span></button>
+      <span class="separator"></span>
+      <button class="iconbutton" id="theme" aria-label="Switch to dark theme" title="Compare light and dark"><svg><use href="#moon"/></svg></button>
+      <button class="iconbutton" id="settings" aria-label="Settings" title="Service and settings"><svg><use href="#settings"/></svg></button>
+    </div>
+  </header>
+  <div class="toolbar">
+    <label class="search"><svg><use href="#search"/></svg><input id="search-input" type="search" placeholder="Search application, process ID, or path" aria-label="Search applications" autocomplete="off"><kbd>Ctrl K</kbd></label>
+    <div class="filters" aria-label="Filter applications"><button data-filter="all" aria-pressed="true">All running <span class="count" id="all-count"></span></button><button data-filter="active" aria-pressed="false">Network active <span class="count" id="active-count"></span></button><button data-filter="limited" aria-pressed="false">Limited <span class="count" id="limited-count"></span></button></div>
+    <div class="spacer"></div>
+    <button class="text-button" id="pause-all"><svg><use href="#pause"/></svg><span id="pause-label">Pause limits</span></button>
+    <span class="separator"></span>
+    <button class="text-button add" id="add-app"><svg><use href="#plus"/></svg><span class="button-label">Add application</span></button>
+    <button class="iconbutton" id="toggle-details" aria-label="Show application details" aria-pressed="false" title="Selected application details"><svg><use href="#panel"/></svg></button>
+  </div>
+  <main class="table-scroller" aria-label="Applications">
+    <table aria-label="Application bandwidth"><colgroup><col class="appname"><col class="processes"><col class="rate"><col class="rate"><col class="limit"><col class="limit"><col class="status"></colgroup>
+      <thead><tr><th data-sort="name"><button>Application <span class="sort-indicator">↑</span></button></th><th data-sort="count"><button>Processes <span class="sort-indicator"></span></button></th><th data-sort="down"><button>↓ Download <span class="sort-indicator"></span></button></th><th data-sort="up"><button>↑ Upload <span class="sort-indicator"></span></button></th><th data-sort="dl"><button>Download limit <span class="sort-indicator"></span></button></th><th data-sort="ul"><button>Upload limit <span class="sort-indicator"></span></button></th><th>Status</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+  <section class="detail" id="detail" aria-label="Selected application details"><div class="detail-name"><strong id="detail-name">Steam</strong><span class="quiet" id="detail-scope">Application · 3 running processes</span></div><div class="path" id="detail-path"></div><div class="detail-actions"><button class="text-button" id="toggle-rule">Disable limits</button><button class="text-button" id="remove-rule">Remove limits</button><button class="iconbutton" id="close-detail" aria-label="Hide application details"><svg><use href="#close"/></svg></button></div></section>
+  <footer class="statusbar"><span id="row-count"></span><span class="totals"><span>↓<strong id="total-down"></strong></span><span>↑<strong id="total-up"></strong></span></span><span class="spacer"></span><span class="hint">Click a limit to edit · Double-click a row for details</span><span class="preview-label">Design preview · sample data</span></footer>
+</div>
+<div class="popover" id="limit-popover" popover="auto" role="dialog" aria-labelledby="edit-title">
+  <form id="limit-form">
+    <div class="pop-head"><span id="edit-title">Download limit</span><button type="button" class="iconbutton" popovertarget="limit-popover" popovertargetaction="hide" aria-label="Close limit editor"><svg><use href="#close"/></svg></button></div>
+    <div class="pop-body"><p class="pop-app" id="edit-app"></p><div class="value-field"><input id="limit-value" type="number" min="0.001" step="any" aria-label="Speed limit" required><select id="limit-unit" aria-label="Speed unit"><option value="1000">KB/s</option><option value="1000000" selected>MB/s</option><option value="125000">Mbps</option></select></div><div class="presets"><button type="button" data-preset="250000">250 KB/s</button><button type="button" data-preset="1000000">1 MB/s</button><button type="button" data-preset="5000000">5 MB/s</button></div><p class="scope-note" id="scope-note"></p><p class="error" id="edit-error" hidden></p></div>
+    <div class="pop-foot"><button type="button" class="text-button" id="unlimited">Set unlimited</button><button class="primary" type="submit">Apply</button></div>
+  </form>
+</div>
+<div class="popover service-panel" id="service-popover" popover="auto" role="dialog" aria-labelledby="service-title"><div class="pop-head"><span id="service-title">Background service</span><button class="iconbutton" popovertarget="service-popover" popovertargetaction="hide" aria-label="Close service panel"><svg><use href="#close"/></svg></button></div><div class="pop-body"><div class="service-state-row"><span>Windows service</span><strong id="service-state">Running</strong></div><div class="service-state-row"><span>Startup</span><strong>Automatic</strong></div><div class="buttonrow"><button data-service="start">Start</button><button data-service="stop">Stop</button><button data-service="restart">Restart</button></div><button class="text-button" data-service="repair">Install / repair</button><details><summary>Service and setup logs</summary><p>In the app, recent errors and setup results appear here.</p></details><p class="scope-note" style="margin-top:15px">Design preview: these controls simulate state changes. They do not control your Windows service.</p></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+  // Isolated interaction prototype. These are example values, never real measurements.
+  const seed = [
+    ['Chrome','chrome',12,842000,46000,null,null],['Discord','Discord',5,18400,32100,null,null],['Docker Desktop','',4,0,0,null,null],['Epic Games Launcher','',3,0,0,2000000,null],['Firefox','',6,257000,8700,null,null],['GitHub Desktop','',3,0,0,null,null],['Microsoft Edge','',9,118000,6500,null,null],['Microsoft Teams','',7,0,0,null,null],['Notepad','',1,0,0,null,null],['OneDrive','',2,64000,420000,null,500000],['Outlook','',3,9500,2200,null,null],['Phone Link','',2,0,0,null,null],['PowerShell','powershell',2,0,0,null,null],['Riot Client','',3,0,0,null,null],['Runtime Broker','RuntimeBroker',5,0,0,null,null],['Search','SearchHost',2,0,0,null,null],['Slack','',6,12200,4300,null,null],['Spotify','',5,172000,1800,null,null],['Steam','steam',3,4780000,85200,5000000,null],['Telegram','',2,43000,6500,null,null],['Visual Studio Code','Code',8,7400,2300,null,null],['Windows Explorer','explorer',1,0,0,null,null],['Windows Update','',2,950000,12400,1000000,null],['Zoom','',3,0,0,null,null]
+  ];
+  const apps = seed.map((a,i)=>({ id:String(i), name:a[0], icon:a[1], count:a[2], down:a[3], up:a[4], dl:a[5], ul:a[6], enabled:true, path:`C:\\Program Files\\${a[0]}\\${a[0].replaceAll(' ','')}.exe`, pid:4820+i*236, children:[] }));
+  for(const a of apps) a.children=Array.from({length:a.count},(_,i)=>({ ...a, id:a.id+'-'+i, parent:a.id, name:a.path.split('\\').pop(), pid:a.pid+i*12, count:1, down:i===0?a.down:0, up:i===0?a.up:0, dl:null,ul:null,children:[], inherited:true }));
+  const $=id=>document.getElementById(id);
+  const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const svg=id=>`<svg aria-hidden="true"><use href="#${id}"/></svg>`;
+  let filter='all', view='applications', sort='name', ascending=true, selected='18', details=false, paused=false, running=true, edit=null, expanded=new Set(), toastTimer;
+  function find(id) { return apps.find(a=>a.id===id) || apps.flatMap(a=>a.children).find(a=>a.id===id); }
+  function saved(a) { return a.dl!==null || a.ul!==null; }
+  function hasRule(a) { return saved(a)||a.children.some(saved); }
+  function fmt(n, unlimited=false) { if(n===null) return unlimited?'Unlimited':'—'; if(n>=1e6)return (n/1e6).toFixed(2)+' MB/s'; if(n>=1000)return (n/1000).toFixed(1)+' KB/s'; return Math.round(n)+' B/s'; }
+  function notify(message) { clearTimeout(toastTimer); $('toast').textContent=message; $('toast').hidden=false; toastTimer=setTimeout(()=>$('toast').hidden=true,2400); }
+  function render() {
+    const query=$('search-input').value.trim().toLowerCase();
+    const matches=a=>(a.name+' '+a.path+' '+a.pid).toLowerCase().includes(query);
+    let visible=apps.filter(a=>(matches(a)||a.children.some(matches))&&(view!=='saved'||hasRule(a))&&(filter!=='active'||a.down+a.up>0)&&(filter!=='limited'||hasRule(a)));
+    visible.sort((a,b)=>{const delta=sort==='name'?a.name.localeCompare(b.name):(a[sort]??Infinity)-(b[sort]??Infinity);return (ascending?1:-1)*(delta||a.name.localeCompare(b.name));});
+    const flat=visible.flatMap(a=>[a,...(expanded.has(a.id)?a.children.filter(c=>!query||matches(a)||matches(c)):[])]);
+    const max=Math.max(1,...apps.map(a=>a.down));
+    $('rows').innerHTML=flat.map(a=>{
+      const parent=a.parent?find(a.parent):null, inherited=!!parent&&!saved(a)&&saved(parent), effective=inherited?parent:a;
+      const limited=saved(effective), enabled=effective.enabled;
+      const state=!running?'Offline':paused&&limited?'Paused':limited&&!enabled?'Disabled':a.parent&&saved(a)?'Override':!a.parent&&a.children.some(saved)?'Overrides':limited?'Limited':'—';
+      const nameIcon=a.icon?`<img src="icons/${a.icon}.png" alt="">`:`<span class="generic">${svg('app')}</span>`;
+      const limitCell=(direction)=>`<button class="limit-button ${effective[direction]!==null?'set':''} ${limited&&!enabled?'inactive':''}" data-edit="${a.id}" data-direction="${direction}" aria-label="${direction==='dl'?'Download':'Upload'} limit for ${escape(a.name)}${a.parent?' PID '+a.pid:''}" title="${inherited?'Inherited from application; click to create a process override':'Click to set '+(direction==='dl'?'download':'upload')+' limit'}">${fmt(effective[direction],true)}${inherited?' ↳':''}</button>`;
+      return `<tr data-id="${a.id}" class="${selected===a.id?'selected ':''}${a.parent?'child':''}" aria-selected="${selected===a.id}"><td title="${escape(a.path)}"><div class="name-cell"><button class="tree ${a.parent||a.count<2?'blank':''}" data-expand="${a.id}" aria-label="${expanded.has(a.id)?'Collapse':'Expand'} ${escape(a.name)}" aria-expanded="${expanded.has(a.id)}">${expanded.has(a.id)?'⌄':'›'}</button>${nameIcon}<span class="label">${escape(a.name)}</span></div></td><td class="number process-id">${a.parent?'PID '+a.pid:a.count}</td><td class="number"><span class="speed ${a.down?'down':'zero'}">${a.down>0&&running?`<i class="meter" style="width:${a.down/max*100}%"></i>`:''}<span class="value">${running?fmt(a.down):'—'}</span></span></td><td class="number"><span class="speed ${a.up?'up':'zero'}">${running?fmt(a.up):'—'}</span></td><td>${limitCell('dl')}</td><td>${limitCell('ul')}</td><td><span class="state ${state==='Limited'?'limited':state==='Paused'?'paused':state.startsWith('Override')?'override':''}">${state}</span></td></tr>`;
+    }).join('')||'<tr><td class="empty" colspan="7">No matching applications. Try another search or filter.</td></tr>';
+    $('row-count').textContent=`${visible.length} applications · ${visible.reduce((sum,a)=>sum+a.count,0)} processes`;
+    $('all-count').textContent=apps.length;
+    $('active-count').textContent=apps.filter(a=>a.down+a.up>0).length;
+    $('limited-count').textContent=apps.filter(hasRule).length;
+    $('saved-count').textContent=apps.reduce((n,a)=>n+Number(saved(a))+a.children.filter(saved).length,0);
+    $('total-down').textContent=running?fmt(apps.reduce((n,a)=>n+a.down,0)):'—';
+    $('total-up').textContent=running?fmt(apps.reduce((n,a)=>n+a.up,0)):'—';
+    $('pause-label').textContent=paused?'Resume limits':'Pause limits';
+    $('pause-all').classList.toggle('active',paused);
+    $('pause-all').disabled=!running;
+    $('service-label').textContent=running?'Service running':'Service stopped';
+    $('service-dot').classList.toggle('off',!running);
+    $('service-state').textContent=running?'Running':'Stopped';
+    document.querySelector('[data-service=start]').disabled=running;
+    document.querySelector('[data-service=stop]').disabled=!running;
+    document.querySelector('[data-service=restart]').disabled=!running;
+    document.querySelectorAll('th[data-sort]').forEach(th=>{th.querySelector('.sort-indicator').textContent=th.dataset.sort===sort?(ascending?'↑':'↓'):'';th.setAttribute('aria-sort',th.dataset.sort===sort?(ascending?'ascending':'descending'):'none');});
+    renderDetails();
+  }
+  function renderDetails() {
+    const a=find(selected)||apps[0];
+    $('detail').classList.toggle('open',details);
+    $('toggle-details').setAttribute('aria-pressed',String(details));
+    $('detail-name').textContent=a.name;
+    $('detail-scope').textContent=a.parent?'Temporary process · PID '+a.pid:`Application · ${a.count} running ${a.count===1?'process':'processes'}`;
+    $('detail-path').textContent=a.path; $('detail-path').title=a.path;
+    $('toggle-rule').textContent=a.enabled?'Disable limits':'Enable limits';
+    $('toggle-rule').disabled=!saved(a); $('remove-rule').disabled=!saved(a);
+  }
+  function showPopover(pop,anchor) {
+    const rect=anchor.getBoundingClientRect();
+    if(!pop.matches(':popover-open'))pop.showPopover();
+    const size=pop.getBoundingClientRect();
+    pop.style.left=Math.max(8,Math.min(rect.right-size.width,innerWidth-size.width-8))+'px';
+    pop.style.top=(rect.bottom+size.height+8<innerHeight?rect.bottom+5:Math.max(8,rect.top-size.height-5))+'px';
+  }
+  function openEditor(id,direction,anchor) {
+    const a=find(id); selected=id; edit={id,direction,anchor};
+    $('edit-title').textContent=direction==='dl'?'Download limit':'Upload limit';
+    $('edit-app').textContent=a.name+(a.parent?' · PID '+a.pid:'');
+    const value=a[direction]??1000000;
+    $('limit-unit').value=value>=1e6?'1000000':'1000';
+    $('limit-value').value=String(value/Number($('limit-unit').value));
+    $('scope-note').textContent=a.parent?'Temporary override for this process. Removed when the process exits.':`Shared across all ${a.count} running ${a.count===1?'process':'processes'}. Applies when this application opens again.`;
+    $('edit-error').hidden=true;
+    showPopover($('limit-popover'),anchor);
+    $('limit-value').focus(); $('limit-value').select();
+    document.querySelectorAll('tr[data-id]').forEach(tr=>tr.classList.toggle('selected',tr.dataset.id===id));renderDetails();
+  }
+  $('rows').addEventListener('click',e=>{
+    const exp=e.target.closest('[data-expand]'); if(exp) { expanded.has(exp.dataset.expand)?expanded.delete(exp.dataset.expand):expanded.add(exp.dataset.expand); render(); return; }
+    const button=e.target.closest('[data-edit]');if(button){openEditor(button.dataset.edit,button.dataset.direction,button);return;}
+    const row=e.target.closest('tr[data-id]');if(row){selected=row.dataset.id;document.querySelectorAll('tr[data-id]').forEach(tr=>tr.classList.toggle('selected',tr.dataset.id===selected));renderDetails();}
+  });
+  $('rows').addEventListener('dblclick',e=>{if(e.target.closest('button'))return;const row=e.target.closest('tr[data-id]');if(row){selected=row.dataset.id;details=true;renderDetails();}});
+  document.querySelectorAll('[data-sort]').forEach(th=>th.querySelector('button').onclick=()=>{ascending=sort===th.dataset.sort?!ascending:th.dataset.sort==='name';sort=th.dataset.sort;render();});
+  $('search-input').addEventListener('input',render);
+  document.querySelectorAll('[data-filter]').forEach(button=>button.onclick=()=>{filter=button.dataset.filter;document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));render();});
+  function setView(next) { view=next;filter='all';$('search-input').value='';document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter==='all')));$('applications-tab').setAttribute('aria-selected',String(next==='applications'));$('saved-tab').setAttribute('aria-selected',String(next==='saved'));render(); }
+  $('applications-tab').onclick=()=>setView('applications');$('saved-tab').onclick=()=>setView('saved');
+  $('pause-all').onclick=()=>{paused=!paused;render();notify(paused?'Preview: all limits paused':'Preview: limits resumed');};
+  $('theme').onclick=()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('theme').setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme');};
+  if(new URLSearchParams(location.search).get('theme')==='dark')$('theme').click();
+  $('toggle-details').onclick=()=>{details=!details;renderDetails();};$('close-detail').onclick=()=>{details=false;renderDetails();};
+  $('toggle-rule').onclick=()=>{const a=find(selected);a.enabled=!a.enabled;render();};
+  $('remove-rule').onclick=()=>{const a=find(selected);a.dl=null;a.ul=null;render();notify('Preview: limits removed for '+a.name);};
+  function apply(value) { const a=find(edit.id);a[edit.direction]=value;a.enabled=true;$('limit-popover').hidePopover();render();notify(`Preview: ${a.name} ${edit.direction==='dl'?'download':'upload'} ${value===null?'set to unlimited':'limited to '+fmt(value)}`); }
+  $('limit-form').onsubmit=e=>{e.preventDefault();const value=Number($('limit-value').value)*Number($('limit-unit').value);if(!Number.isFinite(value)||value<1){$('edit-error').textContent='Enter a positive speed, or choose unlimited.';$('edit-error').hidden=false;return;}apply(Math.round(value));};
+  $('unlimited').onclick=()=>apply(null);
+  document.querySelectorAll('[data-preset]').forEach(button=>button.onclick=()=>{const value=Number(button.dataset.preset);$('limit-unit').value=value>=1e6?'1000000':'1000';$('limit-value').value=String(value/Number($('limit-unit').value));});
+  for(const id of ['settings','service-button'])$(id).onclick=()=>showPopover($('service-popover'),$(id));
+  document.querySelectorAll('[data-service]').forEach(button=>button.onclick=()=>{running=button.dataset.service!=='stop';render();notify('Preview only: service '+(running?'running':'stopped'));});
+  $('add-app').onclick=()=>{const input=document.createElement('input');input.type='file';input.accept='.exe';input.onchange=()=>{const file=input.files?.[0];if(!file)return;const a={id:'added-'+apps.length,name:file.name.replace(/\.exe$/i,''),icon:'',count:0,down:0,up:0,dl:null,ul:null,enabled:true,path:file.name,pid:0,children:[]};apps.push(a);selected=a.id;setView('applications');$('search-input').value=a.name;render();openEditor(a.id,'dl',document.querySelector(`[data-edit="${a.id}"]`));};input.click();};
+  document.addEventListener('keydown',e=>{if((e.ctrlKey&&e.key.toLowerCase()==='k')||(e.key==='/'&&!['INPUT','SELECT'].includes(document.activeElement.tagName))){e.preventDefault();$('search-input').focus();$('search-input').select();}if(e.key==='Escape'&&!document.querySelector(':popover-open')&&document.activeElement===$('search-input')){$('search-input').value='';render();}});
+  render();
+</script>
+</body>
+</html>

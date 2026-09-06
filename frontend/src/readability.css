@@ -1,0 +1,256 @@
+/* Maintain readable contrast at the compact desktop density. */
+.page-heading p,
+.section-heading p,
+.field-help,
+.metric-caption,
+.table-footer,
+.page-footnote,
+.settings-title p,
+.settings-row p,
+.settings-note,
+.rule-enabled p,
+.executable code,
+.editor-app p,
+.saved-rule-name > span,
+.empty-state p {
+  color: #747e70;
+}
+.app-cell strong {
+  color: #36422f;
+  font-size: 12px;
+}
+.app-cell div > span {
+  color: #7a8471;
+  font-size: 10px;
+}
+.number {
+  font-size: 11px;
+  color: #526746;
+}
+.muted {
+  color: #7a8573 !important;
+}
+.badge {
+  color: #78836f;
+  background: #f0f3ec;
+}
+.badge.limited {
+  color: #52723d;
+  background: #eaf2e4;
+}
+.limits-cell {
+  color: #617351;
+  font-size: 10px;
+}
+.table-header {
+  color: #717e64;
+  font-size: 10px;
+}
+.table-footer {
+  font-size: 10px;
+}
+.search input,
+.filter-control select,
+.sort-control select {
+  font-size: 11px;
+}
+.search input::placeholder {
+  color: #849077;
+}
+.metric-label {
+  font-size: 11px;
+  color: #4f7149;
+}
+.metric-label.upload {
+  color: #527c93;
+}
+.metric-caption {
+  font-size: 10px;
+}
+.metric-value span {
+  color: #6f7d64;
+}
+.graph-heading {
+  font-size: 11px;
+  color: #65745a;
+}
+.legend {
+  color: #76846b;
+}
+.chart-scale,
+.chart-times {
+  color: #7c8870;
+  font-size: 9px;
+}
+.chart-unavailable {
+  color: #88947b;
+}
+.field-label,
+.limit-heading > label,
+.rule-enabled strong {
+  color: #4f6940;
+  font-size: 12px;
+}
+.field-help,
+.limit-heading .checkbox-label,
+.rule-enabled p,
+.info-note,
+.executable code {
+  font-size: 11px;
+}
+.limit-heading .checkbox-label,
+.info-note,
+.drawer select {
+  color: #748965;
+}
+.eyebrow {
+  color: #79886c;
+}
+.count {
+  color: #657a52;
+}
+.settings-row strong {
+  color: #455e36;
+}
+.settings-title h2 {
+  color: #394d2e;
+}
+.settings-title p,
+.settings-row p {
+  font-size: 12px;
+}
+
+/* Keep the primary desktop view inside the window; only the process list scrolls. */
+@media (min-width: 761px) {
+  main {
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .main-content {
+    height: calc(100dvh - 61px);
+    padding-top: 24px;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .page-heading {
+    flex-shrink: 0;
+    margin-bottom: 21px;
+  }
+  .overview {
+    min-height: 166px;
+    height: 166px;
+    flex-shrink: 0;
+    margin-bottom: 23px;
+  }
+  .metrics {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+  .metric-label {
+    margin-bottom: 7px;
+  }
+  .metric-caption {
+    margin-top: 7px;
+  }
+  .overview-graph {
+    padding: 15px 23px 10px;
+  }
+  .traffic-chart {
+    height: 117px;
+  }
+  .traffic-chart svg {
+    height: 90px;
+  }
+  .chart-unavailable {
+    top: 45px;
+  }
+  .activity-section {
+    min-height: 165px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .section-heading {
+    flex-shrink: 0;
+    margin-bottom: 13px;
+  }
+  .table-toolbar {
+    flex-shrink: 0;
+    margin-bottom: 11px;
+  }
+  .process-table {
+    min-height: 130px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .table-header,
+  .table-footer {
+    flex-shrink: 0;
+  }
+  .table-scroll {
+    flex: 1;
+    height: auto;
+    min-height: 55px;
+  }
+  .table-footer {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .settings-layout,
+  .saved-section {
+    flex-shrink: 0;
+  }
+  .banner {
+    flex-shrink: 0;
+  }
+}
+@media (max-height: 720px) and (min-width: 761px) {
+  .main-content {
+    padding-top: 18px;
+  }
+  .page-heading {
+    margin-bottom: 15px;
+  }
+  .page-heading h1 {
+    font-size: 25px;
+  }
+  .page-heading .eyebrow {
+    margin-bottom: 7px;
+  }
+  .page-heading p {
+    margin-top: 6px;
+  }
+  .overview {
+    height: 140px;
+    min-height: 140px;
+    margin-bottom: 17px;
+  }
+  .overview-graph {
+    padding-top: 12px;
+  }
+  .traffic-chart {
+    height: 96px;
+  }
+  .traffic-chart svg {
+    height: 72px;
+  }
+  .metric-value {
+    font-size: 24px;
+  }
+  .metric-caption {
+    display: none;
+  }
+  .section-heading p {
+    display: none;
+  }
+  .section-heading {
+    margin-bottom: 10px;
+  }
+  .service-banner {
+    padding: 9px 11px;
+    font-size: 10px;
+  }
+}

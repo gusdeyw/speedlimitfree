@@ -1,0 +1,23 @@
+{
+  "connected": true,
+  "engine": "monitor",
+  "processCount": 331,
+  "save": "passed",
+  "pause": "passed",
+  "delete": "passed",
+  "visibility": "passed",
+  "windowsServiceStatus": "passed",
+  "startupInTray": "passed",
+  "executableIcon": "passed",
+  "missingIconFallback": "passed",
+  "initialSystemTheme": "light",
+  "liveThemeChange": "passed (WebView2 media emulation)",
+  "secondInstanceRestore": "passed",
+  "trayIcon": "passed",
+  "closeToTray": "passed",
+  "restoreFromTray": "passed",
+  "pauseFromTray": "passed",
+  "hiddenStatistics": "passed",
+  "quitFromTray": "passed",
+  "serviceSurvivesQuit": "passed"
+}
