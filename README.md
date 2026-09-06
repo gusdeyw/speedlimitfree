@@ -1,6 +1,7 @@
 # SpeedLimitFree
 
 [![Windows build](https://github.com/gusdeyw/speedlimitfree/actions/workflows/release.yml/badge.svg)](https://github.com/gusdeyw/speedlimitfree/actions/workflows/release.yml)
+[![Tests](https://github.com/gusdeyw/speedlimitfree/actions/workflows/tests.yml/badge.svg)](https://github.com/gusdeyw/speedlimitfree/actions/workflows/tests.yml)
 [![Latest release](https://img.shields.io/github/v/release/gusdeyw/speedlimitfree)](https://github.com/gusdeyw/speedlimitfree/releases/latest)
 
 **[Download Windows installer (.exe)](https://github.com/gusdeyw/speedlimitfree/releases/latest/download/SpeedLimitFree-Setup.exe)** · [Download ZIP](https://github.com/gusdeyw/speedlimitfree/releases/latest/download/SpeedLimitFree-windows-x64.zip) · [Release notes](https://github.com/gusdeyw/speedlimitfree/releases/latest)

@@ -3,8 +3,6 @@ name: Windows build and release
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,7 +10,7 @@ permissions:
 
 # Finish publication in order; a newer build must not race an older one for Latest.
 concurrency:
-  group: windows-release-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
+  group: windows-release-main
   cancel-in-progress: false
 
 jobs:

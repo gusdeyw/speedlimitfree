@@ -1,6 +1,12 @@
 # Windows releases
 
-Every successful push to `main` builds and publishes a GitHub release. You can also run **Actions > Windows build and release > Run workflow** on `main`. Pull requests build and test without publishing.
+Every successful push to `main` builds and publishes a GitHub release. You can also run **Actions > Windows build and release > Run workflow** on `main`. Pull requests use the separate Tests workflow without publishing.
+
+## Run tests without releasing
+
+Open [Actions > Tests](https://github.com/gusdeyw/speedlimitfree/actions/workflows/tests.yml), click **Run workflow**, choose a branch (including `main`), and click **Run workflow** again. This runs the Windows build, Svelte/TypeScript checks, Go tests/vet, service setup checks, Playwright tests, and compiled installer lifecycle fixtures. It does not stamp a new version or publish a release.
+
+Tests also run automatically on pushes to development branches and pull requests targeting `main`. Pushes to `main` run the same checks in the release workflow before publication. Browser HTML reports are available under the test run's **Artifacts > browser-test-report** for 14 days; each check's output is in the job logs.
 
 The release includes three downloads:
 
@@ -12,7 +18,7 @@ Release notes link directly to these assets. The README uses `/releases/latest/d
 
 ## Versioning
 
-`wails.json` contains the base version. CI adds its workflow run number minus one to the base patch number: base `0.3.0` gives `0.3.0`, `0.3.1`, and so on. Failed builds and pull requests can leave gaps; version numbers are never reused for different workflow runs. The same version is stamped into the desktop, installer, frontend package metadata, and packaged startup guide. These generated edits stay in CI and do not create commits or trigger another build.
+`wails.json` contains the base version. Release CI adds its workflow run number minus one to the base patch number: base `0.3.0` gives `0.3.0`, `0.3.1`, and so on. Failed or cancelled release builds can leave gaps; version numbers are never reused for different release workflow runs. Standalone Tests runs do not consume release versions. The same version is stamped into the desktop, installer, frontend package metadata, and packaged startup guide. These generated edits stay in CI and do not create commits or trigger another build.
 
 Rerunning a failed job reuses that run's version. Uploads happen in a draft; the release is marked Latest only after all files upload. A rerun leaves already published assets intact. To ship a correction, push a new commit or dispatch a new workflow run. Do not reset or decrease the base version; when advancing a minor version, update the base in `wails.json` and the checked-in frontend/package documentation together.
 

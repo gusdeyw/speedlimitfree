@@ -1,0 +1,76 @@
+name: Tests
+
+on:
+  # Main is already tested by the release workflow before publication.
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-tests:
+    name: Windows application and installer tests
+    runs-on: windows-2025
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.25.x'
+          cache-dependency-path: go.sum
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build and check types, Go, service setup, and installer transactions
+        run: ./scripts/build.ps1
+      - name: Install browser for UI tests
+        working-directory: frontend
+        run: npx playwright install chromium
+      - name: Run browser tests
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_HTML_OPEN: never
+        run: npm test -- --reporter=list,html
+      - name: Test compiled installer lifecycle in isolated fixtures
+        run: ./scripts/test-installer-native.ps1
+      - name: Upload browser test report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: browser-test-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Write test summary
+        if: always()
+        env:
+          TEST_STATUS: ${{ job.status }}
+        run: |
+          @"
+          ## Windows tests: $env:TEST_STATUS
+
+          - Svelte and TypeScript build checks
+          - Go tests and vet
+          - Service setup and installer transaction regression checks
+          - Playwright application tests (HTML report in artifacts)
+          - Compiled NSIS install, upgrade, and uninstall fixtures
+
+          Service and driver operations use isolated fixtures. This workflow does not publish releases or change the application version.
+          "@ | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
