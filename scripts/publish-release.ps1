@@ -12,14 +12,18 @@ foreach ($taskLine in (Get-Content -LiteralPath (Join-Path $taskOutput 'SHA256SU
     if ($taskLine -notmatch '^([a-f0-9]{64})  (SpeedLimitFree-Setup\.exe|SpeedLimitFree-windows-x64\.zip)$') { throw 'Invalid checksum entry.' }
     if ((Get-FileHash -LiteralPath (Join-Path $taskOutput $Matches[2]) -Algorithm SHA256).Hash -ne $Matches[1]) { throw 'Release checksum mismatch.' }
 }
-$taskExistingJSON = gh release list --repo $taskRepo --limit 1000 --json tagName,isDraft,targetCommitish
+$taskExistingJSON = gh release list --repo $taskRepo --limit 1000 --json tagName,isDraft
 if ($LASTEXITCODE) { throw 'Could not check existing releases.' }
 $taskExisting = @($taskExistingJSON | ConvertFrom-Json) | Where-Object tagName -EQ $taskTag
 if ($taskExisting -and -not $taskExisting.isDraft) {
     Write-Output "$taskTag is already published. Published assets are immutable; reruns leave them intact."
     exit 0
 }
-if ($taskExisting -and $taskExisting.targetCommitish -ne $taskRelease.commit) { throw 'Existing draft points to another commit.' }
+if ($taskExisting) {
+    $taskDraftJSON = gh release view $taskTag --repo $taskRepo --json targetCommitish
+    if ($LASTEXITCODE) { throw 'Could not check the draft commit.' }
+    if (($taskDraftJSON | ConvertFrom-Json).targetCommitish -ne $taskRelease.commit) { throw 'Existing draft points to another commit.' }
+}
 if (-not $taskExisting) {
     gh release create $taskTag --repo $taskRepo --target $taskRelease.commit --title "SpeedLimitFree $($taskRelease.version)" --notes-file (Join-Path $taskOutput 'release-notes.md') --draft
     if ($LASTEXITCODE) { throw 'Draft release creation failed.' }

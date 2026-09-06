@@ -2,7 +2,7 @@
 
 The primary distribution is `SpeedLimitFree-0.3.0-Setup.exe`, built with NSIS 3.12. The app remains Go/Wails/Svelte. There is no resident installer process or new frontend dependency.
 
-Release policy: publish the newest completed version's installer as the main download. The initial GitHub release will use the current branded 0.3.0 build; earlier development versions are not release candidates. The extracted folder and ZIP are local packaging alternatives for that same version. The desktop, service, and diagnostic executables are components bundled by Setup, not separate application versions.
+Release policy: publish the newest completed version's installer as the main download. CI versions advance from the current 0.3.0 base; earlier development builds are not release candidates. GitHub provides the installer and ZIP with direct links in the release notes; see [release automation](RELEASING.md). The desktop, service, and diagnostic executables are components bundled by Setup, not separate application versions.
 
 ## Installation and updates
 
